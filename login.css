@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login {
+  border-radius: 5px;
+  border: 1px solid black;
+  display: inline-block;
+  cursor: pointer;
+  padding: 0px 4px;
+  margin-left: 5px;
+}
