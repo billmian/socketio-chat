@@ -9,24 +9,27 @@
   <body>
     <div class="container">
       <div>这里设置你的聊天名称：</div>
-      <input />
+      <input id="userName-input" />
       <div class="login">进入聊天室</div>
     </div>
   </body>
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
   <script>
     const loginButton = document.querySelector(".login");
+    const userNameInput = document.querySelector("#userName-input");
     loginButton.addEventListener("click", (e) => {
-      console.log("这里发送请求");
       $.ajax({
+        asynchronous: false,
         type: "post",
         url: "/userName",
         contentType: "application/json",
         data: JSON.stringify({
-          userName: "xiaoming",
+          userName: userNameInput.value,
         }),
-      }).done((msg) => {
-        console.log("这里是返回内容", msg);
+      }).done((data) => {
+        if (data) {
+          window.location.href = "http://localhost:3000/index";
+        }
       });
     });
     //"application/x-www-form-urlencoded"
