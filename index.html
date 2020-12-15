@@ -9,10 +9,6 @@
     <div class="body-container">
       <div class="content">
         <div id="messages"></div>
-        <div class="user-name">
-          <div>这里输入聊天室id：</div>
-          <input id="name-input" />
-        </div>
         <div class="user-message">
           <textarea id="message-textArea" autocomplete="off"></textarea>
           <button id="message-button" class="send-button">发送</button>
@@ -23,13 +19,18 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     var socket = io();
+    const cookie = document.cookie;
+    cookieObj = cookie.split(";").reduce((all, item, index) => {
+      keyAndValue = item.trim().split("=");
+      all[keyAndValue[0]] = keyAndValue[1];
+      return all;
+    }, {});
+    const name = cookieObj["userName"];
 
     const messageList = [];
     const messageContent = document.querySelector("#messages");
     const messageButton = document.querySelector("#message-button");
     const messageTextArea = document.querySelector("#message-textArea");
-    const nameInput = document.querySelector("#name-input");
-    const name = nameInput.value || "代勉";
 
     messageButton.addEventListener("click", () => {
       const sendTime = new Date().valueOf();
