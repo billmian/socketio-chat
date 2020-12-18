@@ -7,18 +7,23 @@
   </head>
   <body>
     <div class="body-container">
-      <div class="content">
-        <div id="messages"></div>
-        <div class="user-message">
-          <textarea id="message-textArea" autocomplete="off"></textarea>
-          <button id="message-button" class="send-button">发送</button>
+      <div class="live-container">
+        <div class="live-title">在线人数:</div>
+        <div id="live-people"></div>
+      </div>
+      <div class="content-container">
+        <div class="content">
+          <div id="messages"></div>
+          <div class="user-message">
+            <textarea id="message-textArea" autocomplete="off"></textarea>
+            <button id="message-button" class="send-button">发送</button>
+          </div>
         </div>
       </div>
     </div>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    var socket = io();
     const cookie = document.cookie;
     cookieObj = cookie.split(";").reduce((all, item, index) => {
       keyAndValue = item.trim().split("=");
@@ -26,11 +31,15 @@
       return all;
     }, {});
     const name = cookieObj["userName"];
+    const connectUserList = new Set();
+
+    var socket = io({ query: { userName: name } });
 
     const messageList = [];
     const messageContent = document.querySelector("#messages");
     const messageButton = document.querySelector("#message-button");
     const messageTextArea = document.querySelector("#message-textArea");
+    const livePeople = document.querySelector("#live-people");
 
     messageButton.addEventListener("click", () => {
       const sendTime = new Date().valueOf();
@@ -40,11 +49,23 @@
         time: sendTime,
       };
       socket.emit("newChatMessage", sendMessageObj);
+      socket.send("this is send content!!!");
     });
 
     socket.on("broadCastMessage", (msg) => {
       messageList.push(msg);
       renderContent(msg);
+    });
+    socket.on("connectUser", (connectUser) => {
+      console.log("这里有人连接：", connectUser);
+      if (connectUserList.has(connectUser)) {
+        return;
+      } else {
+        connectUserList.add(connectUser);
+      }
+    });
+    socket.on("disconUser", (disconUser) => {
+      console.log("这里有人掉线了:", disconUser);
     });
     function formatDate(date) {
       if (date < 10) {
@@ -52,6 +73,9 @@
       } else {
         return date;
       }
+    }
+    function renderLivePeople(list) {
+      const peopleList = list.map()
     }
     function renderContent(msg) {
       let newNode;
@@ -81,8 +105,30 @@
         newContainer.appendChild(userInfo);
         newContainer.appendChild(newNode);
       } else {
+        newContainer = document.createElement("div");
+        newContainer.className = "custom-message-container";
+
+        userInfo = document.createElement("div");
+        userInfo.className = "custom-message-info";
+        userInfo.innerText =
+          msg.name +
+          " " +
+          new Date(msg.time).getFullYear() +
+          "/" +
+          formatDate(new Date(msg.time).getMonth() + 1) +
+          "/" +
+          formatDate(new Date(msg.time).getDate()) +
+          " " +
+          formatDate(new Date(msg.time).getHours()) +
+          ":" +
+          formatDate(new Date(msg.time).getMinutes());
+
         newNode = document.createElement("div");
-        newNode.className = "custom-message";
+        newNode.className = "custom-message-content";
+        newNode.innerText = msg.message;
+
+        newContainer.appendChild(userInfo);
+        newContainer.appendChild(newNode);
       }
       messageContent.appendChild(newContainer);
     }

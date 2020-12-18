@@ -12,11 +12,16 @@
       <input id="userName-input" />
       <div class="login">进入聊天室</div>
     </div>
+    <div class="container">
+      <div id="error"></div>
+    </div>
   </body>
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
   <script>
     const loginButton = document.querySelector(".login");
     const userNameInput = document.querySelector("#userName-input");
+    const error = document.querySelector("#error");
+
     loginButton.addEventListener("click", (e) => {
       $.ajax({
         asynchronous: false,
@@ -26,11 +31,21 @@
         data: JSON.stringify({
           userName: userNameInput.value,
         }),
-      }).done((data) => {
-        if (data) {
-          window.location.href = "http://localhost:3000/index";
-        }
-      });
+      })
+        .done((res, status, xhr) => {
+          if (xhr.status === 200) {
+            window.location.href = "http://localhost:3000/index";
+          }
+        })
+        .fail((res, status, xhr) => {
+          console.log(res.status);
+          if (res.status === 400) {
+            error.innerHTML = "名字不能为空";
+          }
+          if (res.status === 403) {
+            error.innerHTML = "名字重复";
+          }
+        });
     });
     //"application/x-www-form-urlencoded"
   </script>

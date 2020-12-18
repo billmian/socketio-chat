@@ -1,5 +1,3 @@
-@media (min-width: 1200px) {
-}
 * {
   margin: 0;
   padding: 0;
@@ -21,7 +19,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.content-container {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
   flex-direction: column;
+}
+.live-container {
+  width: 130px;
+  height: 200px;
+  background-color: white;
+  margin-right: 40px;
 }
 .content {
   min-width: 600px;
@@ -39,6 +49,7 @@ body {
   overflow: auto;
   padding-top: 10px;
 }
+
 .user-name {
   height: 50px;
   display: flex;
@@ -61,14 +72,26 @@ body {
 textarea {
   resize: none;
 }
-
 .my-message-container {
   display: flex;
   align-items: flex-end;
   flex-direction: column;
   padding: 0 5px;
 }
+.custom-message-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 0 5px;
+}
 .my-message-content {
+  margin-top: 4px;
+  padding: 4px 6px;
+  background-color: lightblue;
+  color: white;
+  border-radius: 8px;
+}
+.custom-message-content {
   margin-top: 4px;
   padding: 4px 6px;
   background-color: lightblue;
