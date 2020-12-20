@@ -8,7 +8,10 @@
   <body>
     <div class="body-container">
       <div class="live-container">
-        <div class="live-title">在线人数:</div>
+        <div class="live-title-container">
+          <div class="live-title">在线人数:</div>
+          <div id="live-number"></div>
+        </div>
         <div id="live-people"></div>
       </div>
       <div class="content-container">
@@ -31,7 +34,11 @@
       return all;
     }, {});
     const name = cookieObj["userName"];
-    const connectUserList = new Set();
+    console.log("🚀 ~ file: index.html ~ line 37 ~ name", name)
+
+    if (!name) {
+      window.location.href = "http://localhost:3000/login";
+    }
 
     var socket = io({ query: { userName: name } });
 
@@ -40,6 +47,7 @@
     const messageButton = document.querySelector("#message-button");
     const messageTextArea = document.querySelector("#message-textArea");
     const livePeople = document.querySelector("#live-people");
+    const livePeopleNumber = document.querySelector("#live-number");
 
     messageButton.addEventListener("click", () => {
       const sendTime = new Date().valueOf();
@@ -49,23 +57,23 @@
         time: sendTime,
       };
       socket.emit("newChatMessage", sendMessageObj);
-      socket.send("this is send content!!!");
+      messageTextArea.value = "";
     });
-
     socket.on("broadCastMessage", (msg) => {
       messageList.push(msg);
       renderContent(msg);
     });
-    socket.on("connectUser", (connectUser) => {
-      console.log("这里有人连接：", connectUser);
-      if (connectUserList.has(connectUser)) {
-        return;
-      } else {
-        connectUserList.add(connectUser);
-      }
+
+    //有其他人进入了聊天室
+    socket.on("connectUser", (userList) => {
+      renderLivePeople(userList);
+      livePeopleNumber.innerText = userList.length;
     });
-    socket.on("disconUser", (disconUser) => {
-      console.log("这里有人掉线了:", disconUser);
+
+    //有人退出了聊天室
+    socket.on("disconUser", (userList) => {
+      renderLivePeople(userList);
+      livePeopleNumber.innerText = userList.length;
     });
     function formatDate(date) {
       if (date < 10) {
@@ -74,9 +82,20 @@
         return date;
       }
     }
+
     function renderLivePeople(list) {
-      const peopleList = list.map()
+      //清除所有子节点
+      while (livePeople.hasChildNodes()) {
+        livePeople.removeChild(livePeople.firstChild);
+      }
+      list.forEach((element) => {
+        let livePersonNode = document.createElement("div");
+        livePersonNode.className = "live-person";
+        livePersonNode.innerText = element;
+        livePeople.appendChild(livePersonNode);
+      });
     }
+
     function renderContent(msg) {
       let newNode;
       if (msg.name === name) {

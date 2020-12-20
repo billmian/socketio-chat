@@ -34,10 +34,7 @@ app.post("/userName", (req, res) => {
     res.status(403);
     res.send("duplicate userName");
     return;
-  } else {
-    userNameSet.add(userName);
   }
-  userNameSet.add(userName);
   res.cookie("userName", userName, {
     // 设置该Cookie只可以由服务端访问，即前端JavaScript无法访问document.cookie获取该值，但控制台还是可以查看和修改
     httpOnly: false,
@@ -66,10 +63,25 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
+  const connectUserName = socket.handshake.query.userName;
+  console.log(
+    "这里有新用户连接start：",
+    userNameSet,
+    userNameSet.has(connectUserName),
+    connectUserName
+  );
+
+  //如果没有这个 connectUserName
+  if (!userNameSet.has(connectUserName)) {
+    userNameSet.add(connectUserName);
+    console.log("这里有新用户连接：", connectUserName);
+    io.emit("connectUser", Array.from(userNameSet));
+  }
   socket.on("disconnect", () => {
     const disconUser = socket.handshake.query.userName;
     userNameSet.delete(disconUser);
-    io.emit("disconUser", disconUser);
+    console.log("这里用户掉线了：", disconUser);
+    io.emit("disconUser", Array.from(userNameSet));
   });
   socket.on("newChatMessage", (msg) => {
     console.log("message: " + msg);
